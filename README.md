@@ -5,7 +5,7 @@ botframe currently uses a build number version system rather than a semantic sys
 
 ## Install
 ```bash
-npm install github:krypton-innovations/ botframe#main
+npm install github:krypton-innovations/botframe#main
 ```
 Requires `discord.js` ^14.26.4 in your project
 
