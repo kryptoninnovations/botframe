@@ -1,6 +1,6 @@
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
-const { registerCommands } = require('./registry/registerCommands');
-const { getLocalCommands } = require('./registry/getLocalCommands');
+const registerCommands = require('./registry/registerCommands');
+const getLocalCommands = require('./registry/getLocalCommands');
 const { loadEvents } = require('./handlers/eventHandler');
 const { handleCommand } = require('./handlers/commandHandler');
 
