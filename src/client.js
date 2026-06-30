@@ -52,12 +52,11 @@ class FrameworkClient extends Client {
     | '_ \\ / _ \\| __|  _| '__/ _\` | '_ \` _ \\ / _ \\
     | |_) | (_) | |_| | | | | (_| | | | | | |  __/
     |_.__/ \\___/ \\__|_| |_|  \\__,_|_| |_| |_|\\___|
+    
+    v${require("../package.json").version}
+    made with love by krypton Innovations
     `;
-
-    console.log(`krypton Innovations`);
     console.log(banner);
-    console.log(`v${require("../package.json").version} | ${time}\n`);
-
 
     const builtInCommands = getBuiltInCommands();
 
