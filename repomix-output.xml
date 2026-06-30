@@ -1,0 +1,370 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+package.json
+src/client.js
+src/handlers/commandHandler.js
+src/handlers/eventHandler.js
+src/index.js
+src/registry/getLocalCommands.js
+src/registry/registerCommands.js
+src/utils/areCommandsDifferent.js
+src/utils/getAllFiles.js
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="package.json">
+{
+  "name": "@krypton/discord-bot-framework",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "author": "krypton Innovations",
+  "license": "MIT",
+  "dependencies": {
+    "discord-html-transcripts": "^3.2.0",
+    "discord.js": "^14.26.4",
+    "path": "^0.12.7"
+  },
+  "peerDependencies": {
+    "discord.js": "^14.26.4"
+  }
+}
+</file>
+
+<file path="src/client.js">
+const { Client, GatewayIntentBits, Partials } = require('discord.js');
+const { registerCommands } = require('./registry/registerCommands');
+const { getLocalCommands } = require('./registry/getLocalCommands');
+const { loadEvents } = require('./handlers/eventHandler');
+const { handleCommand } = require('./handlers/commandHandler');
+
+const defaultIntents = [
+  GatewayIntentBits.Guilds,
+  GatewayIntentBits.GuildMembers,
+  GatewayIntentBits.GuildMessages,
+  GatewayIntentBits.MessageContent,
+  GatewayIntentBits.DirectMessages,
+];
+
+const defaultPartials = [
+  Partials.Message,
+  Partials.Channel,
+  Partials.Reaction,
+];
+
+class FrameworkClient extends Client {
+  constructor(options = {}) {
+    const {
+      intents = defaultIntents,
+      partials = defaultPartials,
+      commandsPath,
+      eventsPath,
+      devUserIds = [],
+      ...clientOptions
+    } = options;
+
+    super({ intents, partials, ...clientOptions });
+
+    this.config = {
+      commandsPath,
+      eventsPath,
+      devUserIds,
+    };
+
+    this.commands = new Map();
+  }
+
+  async start(token) {
+    console.log('BOOT | Preparing to login...');
+    const time = Date.now();
+
+    const localCommands = getLocalCommands(this.config.commandsPath);
+    for (const cmd of localCommands) {
+      this.commands.set(cmd.name, cmd);
+    }
+
+    await registerCommands(this, localCommands);
+
+    if (this.config.eventsPath) {
+      await loadEvents(this, this.config.eventsPath);
+    }
+
+    this.on('interactionCreate', async (interaction) => {
+      if (interaction.isChatInputCommand()) {
+        await handleCommand(this, interaction, this.commands);
+      }
+    });
+
+    await this.login(token);
+    const timeTaken = Date.now() - time;
+    console.log(`BOOT | ${this.user.username} is online (took ${timeTaken}ms)`);
+  }
+}
+
+module.exports = { FrameworkClient };
+</file>
+
+<file path="src/handlers/commandHandler.js">
+const { MessageFlags } = require('discord.js');
+
+module.exports.handleCommand = async (client, interaction, commands) => {
+  const commandObject = commands.get(interaction.commandName);
+  if (!commandObject) return;
+
+  // Must be in a guild
+  if (!interaction.guild) {
+    return interaction.reply({
+      content: '❌ You cannot use commands in Direct Messages.',
+      flags: MessageFlags.Ephemeral,
+    });
+  }
+
+  // Dev only check
+  if (commandObject.devOnly) {
+    if (!client.config.devUserIds.includes(interaction.user.id)) {
+      return interaction.reply({
+        content: '❌ This command is restricted to Developers only.',
+        flags: MessageFlags.Ephemeral,
+      });
+    }
+  }
+
+  // Role-based permissions
+  if (commandObject.permissionsRequired?.length) {
+    const hasRole = interaction.member.roles.cache.some(role =>
+      commandObject.permissionsRequired.includes(role.id)
+    );
+
+    if (!hasRole) {
+      return interaction.reply({
+        content: '❌ You do not have the valid permissions required for this command.',
+        flags: MessageFlags.Ephemeral,
+      });
+    }
+  }
+
+  try {
+    await commandObject.callback(client, interaction);
+  } catch (error) {
+    console.error(`Command "${commandObject.name}" error:`, error);
+    if (!interaction.replied && !interaction.deferred) {
+      await interaction.reply({ content: '❌ An error occurred.', flags: MessageFlags.Ephemeral }).catch(() => {});
+    }
+  }
+};
+</file>
+
+<file path="src/handlers/eventHandler.js">
+const path = require('path');
+const getAllFiles = require('../utils/getAllFiles');
+
+module.exports.loadEvents = async (client, eventsBasePath) => {
+  const eventFolders = getAllFiles(eventsBasePath, true);
+
+  for (const eventFolder of eventFolders) {
+    const eventFiles = getAllFiles(eventFolder);
+    eventFiles.sort((a, b) => a > b);
+
+    const eventName = path.basename(eventFolder);
+
+    client.on(eventName, async (...args) => {
+      for (const eventFile of eventFiles) {
+        const eventFunction = require(eventFile);
+        await eventFunction(client, ...args);
+      }
+    });
+  }
+};
+</file>
+
+<file path="src/index.js">
+const { FrameworkClient } = require('./client');
+const utils = require('./utils');
+
+module.exports = { FrameworkClient, utils };
+</file>
+
+<file path="src/registry/getLocalCommands.js">
+const path = require('path');
+const getAllFiles = require('../utils/getAllFiles');
+
+module.exports = (commandsBasePath, exceptions = []) => {
+  let localCommands = [];
+
+  const commandCategories = getAllFiles(commandsBasePath, true);
+
+  for (const commandCategory of commandCategories) {
+    const commandFiles = getAllFiles(commandCategory);
+
+    for (const commandFile of commandFiles) {
+      const commandObject = require(commandFile);
+
+      if (exceptions.includes(commandObject.name)) {
+        continue;
+      }
+
+      localCommands.push(commandObject);
+    }
+  }
+
+  return localCommands;
+};
+</file>
+
+<file path="src/registry/registerCommands.js">
+const areCommandsDifferent = require('../utils/areCommandsDifferent');
+
+module.exports = async (client, localCommands) => {
+  const applicationCommands = client.application.commands;
+  await applicationCommands.fetch();
+
+  for (const localCommand of localCommands) {
+    const { name, description, options } = localCommand;
+
+    try {
+      const existingCommand = applicationCommands.cache.find(
+        (cmd) => cmd.name === name
+      );
+
+      if (existingCommand) {
+        if (localCommand.deleted) {
+          await applicationCommands.delete(existingCommand.id);
+          console.log(`REGISTER | Deleted command "${name}".`);
+          continue;
+        }
+
+        if (areCommandsDifferent(existingCommand, localCommand)) {
+          await applicationCommands.edit(existingCommand.id, {
+            description,
+            options: options || [],   // explicit empty array to clear old options
+          });
+          console.log(`REGISTER | Edited command "${name}".`);
+        }
+      } else {
+        if (localCommand.deleted) {
+          console.log(`REGISTER | Skipped "${name}" since it's marked deleted.`);
+          continue;
+        }
+
+        await applicationCommands.create({
+          name,
+          description,
+          options: options || [],
+        });
+        console.log(`REGISTER | Registered command "${name}".`);
+      }
+    } catch (err) {
+      console.log(`REGISTER | Error while handling "${name}": ${err}`);
+    }
+  }
+};
+</file>
+
+<file path="src/utils/areCommandsDifferent.js">
+module.exports = (existingCommand, localCommand) => {
+  const areChoicesDifferent = (existingChoices, localChoices) => {
+    for (const localChoice of localChoices) {
+      const existingChoice = existingChoices?.find(c => c.name === localChoice.name);
+      if (!existingChoice) return true;
+      if (localChoice.value !== existingChoice.value) return true;
+    }
+    return false;
+  };
+
+  const areOptionsDifferent = (existingOptions, localOptions) => {
+    for (const localOption of localOptions) {
+      const existingOption = existingOptions?.find(o => o.name === localOption.name);
+      if (!existingOption) return true;
+      if (
+        localOption.description !== existingOption.description ||
+        localOption.type !== existingOption.type ||
+        (localOption.required || false) !== existingOption.required ||
+        (localOption.choices?.length || 0) !== (existingOption.choices?.length || 0) ||
+        areChoicesDifferent(localOption.choices || [], existingOption.choices || [])
+      ) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const existingOptions = existingCommand.options || [];
+  const localOptions = localCommand.options || [];
+
+  if (
+    existingCommand.description !== localCommand.description ||
+    existingOptions.length !== localOptions.length ||
+    areOptionsDifferent(existingOptions, localOptions)
+  ) {
+    return true;
+  }
+
+  return false;
+};
+</file>
+
+<file path="src/utils/getAllFiles.js">
+const fs = require('fs');
+const path = require('path');
+
+module.exports = (directory, foldersOnly = false) => {
+  let fileNames = [];
+
+  const files = fs.readdirSync(directory, { withFileTypes: true });
+
+  for (const file of files) {
+    const filePath = path.join(directory, file.name);
+
+    if (foldersOnly) {
+      if (file.isDirectory()) fileNames.push(filePath);
+    } else {
+      if (file.isFile()) fileNames.push(filePath);
+    }
+  }
+
+  return fileNames;
+};
+</file>
+
+</files>

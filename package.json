@@ -1,0 +1,10 @@
+{
+  "name": "@krypton/discord-bot-framework",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "author": "krypton Innovations",
+  "license": "MIT",
+  "peerDependencies": {
+    "discord.js": "^14.26.4"
+  }
+}
