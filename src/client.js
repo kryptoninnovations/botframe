@@ -58,7 +58,7 @@ class FrameworkClient extends Client {
 
     console.log(`krypton Innovations`);
     console.log(`${purple}${botframeLogo}${reset}`);
-    console.log(`v${version} | ${time}\n`);
+    console.log(`v${require("../package.json").version} | ${time}\n`);
 
 
     const builtInCommands = getBuiltInCommands();
