@@ -10,4 +10,4 @@ npm install github:krypton-innovations/botframe#main
 Requires `discord.js` ^14.26.4 in your project
 
 ## Usage
-To be added
+To be added upon further demand of this framework
