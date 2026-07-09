@@ -15,7 +15,7 @@ module.exports = async (client, localCommands) => {
       if (existingCommand) {
         if (localCommand.deleted) {
           await applicationCommands.delete(existingCommand.id);
-          console.log(`CMDREGISTER | Deleted command "${name}"`);
+          console.log(`Deleted command "${name}"`);
           continue;
         }
 
@@ -24,11 +24,11 @@ module.exports = async (client, localCommands) => {
             description,
             options: options || [],   // explicit empty array to clear old options
           });
-          console.log(`CMDREGISTER | Edited command "${name}"`);
+          console.log(`Edited command "${name}"`);
         }
       } else {
         if (localCommand.deleted) {
-          console.log(`CMDREGISTER | Skipped "${name}" since it's marked deleted`);
+          console.log(`Skipped "${name}" since it's marked deleted`);
           continue;
         }
 
@@ -37,10 +37,10 @@ module.exports = async (client, localCommands) => {
           description,
           options: options || [],
         });
-        console.log(`CMDREGISTER | Registered command "${name}"`);
+        console.log(`Registered command "${name}"`);
       }
     } catch (err) {
-      console.log(`CMDREGISTER | Error while handling "${name}": ${err}`);
+      console.log(`Error while handling "${name}": ${err}`);
     }
   }
 };

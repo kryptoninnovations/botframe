@@ -97,7 +97,7 @@ class FrameworkClient extends Client {
     await registerCommands(this, allCommands);
 
     const timeTaken = Date.now() - time;
-    console.log(`START | ${this.user.username} is online (took ${timeTaken}ms)`);
+    console.log(`${this.user.username} is online (took ${timeTaken}ms)`);
   }
 }
 
