@@ -1,4 +1,4 @@
-<img width="800" height="100" alt="botframe - by krypton" src="https://github.com/user-attachments/assets/59ebe32c-a38f-4924-a642-332379b70fab" />
+<img width="800" height="100" alt="botframe - by krypton" src="https://github.com/user-attachments/assets/ed8dd94d-ba4a-48d0-a84e-b4423d55f633" />
 <hr>
 
 A lightweight Discord.js framework for slash command registration, permission checks, and event routing. It just works, and it's what we use across our own bots.
