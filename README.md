@@ -3,7 +3,7 @@
 
 A lightweight Discord.js framework for slash command registration, permission checks, and event routing. It just works, and it's what we use across our own bots.
 
-> Note: botframe uses a build number version system, not regular semantic versioning.
+> Note: This framework isn't designed with multiple servers in mind. We'll be happy to try and support in future updates though.
 
 ## Install
 ```bash
