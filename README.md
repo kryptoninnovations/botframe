@@ -1,9 +1,11 @@
 <img width="800" height="100" alt="botframe - by krypton" src="https://github.com/user-attachments/assets/ed8dd94d-ba4a-48d0-a84e-b4423d55f633" />
 <hr>
 
-A lightweight Discord.js framework for slash command registration, permission checks, and event routing. It just works, and it's what we use across our own bots.
+A lightweight Discord.js framework for single-server bots (company discord bots, internal management, etc.). 
+No need to hand-write slash command registration or event routing, so you can focus on the core design of your bot.
+It just works, and it's what we use across our own internal bots.
 
-> Note: This framework isn't designed with multiple servers in mind. We'll be happy to try and support in future updates though.
+> Note: This framework is designed towards single-server bots, however we are planning on changing this in the near future.
 
 ## Install
 ```bash
@@ -55,6 +57,14 @@ module.exports = {
 
 Everything gets registered automatically when `client.start()` runs. New commands are created, existing ones are only edited if their description or options actually changed, and anything marked `deleted: true` gets removed from Discord (or just skipped if it was never registered).
 
+### Command runtime
+Before a command's `callback` runs, botframe checks:
+1. It's not being used in DMs (guild only, not removable),
+2. If `devOnly` is set, the user is in `devUserIds`,
+3. If `permissionsRequired` is set, the user has at least one of those role IDs.
+
+If `callback` throws, the error gets logged and the user just sees a generic "something went wrong" reply.
+
 ### Built-in commands
 botframe comes with one command by default, `/status`, which shows the framework version, your bot's version (pulled from your project's `package.json`), uptime, and client/WebSocket ping. If you define your own local command called `status`, yours will override the built-in one.
 
@@ -70,10 +80,6 @@ module.exports = async (client, message) => {
 
 Handlers within a folder run in alphabetical file order, one after another.
 
-## Permissions
-Before a command's `callback` runs, botframe checks:
-1. It's not being used in DMs (guild only).
-2. If `devOnly` is set, the user is in `devUserIds`.
-3. If `permissionsRequired` is set, the user has at least one of those role IDs.
-
-If `callback` throws, the error gets logged and the user just sees a generic "something went wrong" reply.
+### Attributions
+Created by krypton Innovations
+Originally based on [notunderctrl](https://github.com/notunderctrl)'s Discord.js v14 tutorial
