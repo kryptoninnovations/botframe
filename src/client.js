@@ -54,7 +54,7 @@ class FrameworkClient extends Client {
     |_.__/ \\___/ \\__|_| |_|  \\__,_|_| |_| |_|\\___|
     
     v${require("../package.json").version}
-    made with love by krypton Innovations
+    https://kryptoninnovations.co.uk
     `;
     console.log(banner);
 
