@@ -1,8 +1,8 @@
 <img width="800" height="100" alt="botframe - by krypton" src="https://github.com/user-attachments/assets/ed8dd94d-ba4a-48d0-a84e-b4423d55f633" />
 <hr>
 
-A lightweight Discord.js framework for single-server bots (company discord bots, internal management, etc.). 
-No need to hand-write slash command registration or event routing, so you can focus on the core design of your bot.
+A lightweight Discord.js framework for single-server bots (company discord bots, internal management, etc.). <br>
+No need to hand-write slash command registration or event routing, so you can focus on the core design of your bot. <br>
 It just works, and it's what we use across our own internal bots.
 
 > Note: This framework is designed towards single-server bots, however we are planning on changing this in the near future.
