@@ -38,6 +38,7 @@ These get passed into `new FrameworkClient({ ... })`:
 Put one file per command in `commandsPath/<category>/<commandFile>.js`.
 
 ```js
+// commandsPath/tools/ping.js
 module.exports = {
   name: 'ping',
   description: 'Replies with pong',
