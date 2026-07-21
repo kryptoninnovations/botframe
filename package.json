@@ -3,7 +3,7 @@
   "version": "0.0.18",
   "main": "src/index.js",
   "author": "krypton Innovations",
-  "license": "ISC",
+  "license": "MIT",
   "peerDependencies": {
     "discord.js": "^14.26.4"
   }
