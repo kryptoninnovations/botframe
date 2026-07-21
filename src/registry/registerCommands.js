@@ -1,3 +1,8 @@
+/**
+ * registerCommands, syncs local commands with Discord's API
+ * Creates new, edits changed, and removes deleted commands
+ */
+
 const areCommandsDifferent = require('../utils/areCommandsDifferent');
 
 module.exports = async (client, localCommands) => {
@@ -40,7 +45,7 @@ module.exports = async (client, localCommands) => {
         console.log(`Registered command "${name}"`);
       }
     } catch (err) {
-      console.log(`Error while handling "${name}": ${err}`);
+      console.error(`Error while handling "${name}":`, error);
     }
   }
 };
