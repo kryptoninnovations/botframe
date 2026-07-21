@@ -80,6 +80,6 @@ module.exports = async (client, message) => {
 
 Handlers within a folder run in alphabetical file order, one after another.
 
-### Attributions
+## Attributions
 Created by krypton Innovations
 Originally based on [notunderctrl](https://github.com/notunderctrl)'s Discord.js v14 tutorial
