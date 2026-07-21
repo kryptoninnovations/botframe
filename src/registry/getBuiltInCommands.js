@@ -13,6 +13,7 @@ module.exports = () => [
   {
     name: 'status',
     description: 'Show bot and framework status.',
+    restrictDMs: false,
 
     callback: async (client, interaction) => {
       await interaction.deferReply();
