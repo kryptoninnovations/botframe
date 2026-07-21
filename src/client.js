@@ -1,3 +1,9 @@
+/**
+ * FrameworkClient, core bot client extending discord.js Client
+ * Handles command registration, event loading, and permission checks
+ * @extends {Client}
+ */
+
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const registerCommands = require('./registry/registerCommands');
 const getLocalCommands = require('./registry/getLocalCommands');

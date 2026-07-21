@@ -1,3 +1,11 @@
+/**
+ * getLocalCommands, scans category subfolders for command files
+ * @param {string} commandsBasePath - Root commands directory
+ * @param {string[]} [exceptions=[]] - Command names to skip (for overriding built-ins)
+ * @returns {Object[]} Command objects ready for registration
+ */
+
+
 const path = require('path');
 const getAllFiles = require('../utils/getAllFiles');
 

@@ -1,3 +1,11 @@
+/**
+ * areCommandsDifferent, deep-compares two command properties
+ * Checks description, option count, and each option's properties
+ * @param {Object} existingCommand - From Discord's API
+ * @param {Object} localCommand - From local files
+ * @returns {boolean} true if they differ and need re-registration
+ */
+
 module.exports = (existingCommand, localCommand) => {
   const areChoicesDifferent = (existingChoices, localChoices) => {
     for (const localChoice of localChoices) {

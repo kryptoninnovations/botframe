@@ -1,3 +1,10 @@
+/**
+ * getAllFiles, returns file/folder paths from a directory.
+ * @param {string} directory - Directory to scan
+ * @param {boolean} [foldersOnly=false] - Return only folders
+ * @returns {string[]} Absolute paths
+ */
+
 const fs = require('fs');
 const path = require('path');
 
