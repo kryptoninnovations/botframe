@@ -6,8 +6,8 @@
 
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const registerCommands = require('./registry/registerCommands');
+const builtInCommands = require('./registry/builtInCommands');
 const getLocalCommands = require('./registry/getLocalCommands');
-const getBuiltInCommands = require('./registry/getBuiltInCommands');
 const { loadEvents } = require('./handlers/eventHandler');
 const { handleCommand } = require('./handlers/commandHandler');
 
@@ -64,7 +64,7 @@ class FrameworkClient extends Client {
     `;
     console.log(banner);
 
-    const builtInCommands = getBuiltInCommands();
+    const builtInCommands = builtInCommands();
 
     const localCommands = getLocalCommands(this.config.commandsPath);
 

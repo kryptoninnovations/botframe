@@ -1,5 +1,5 @@
 /**
- * getBuiltInCommands, returns framework built-in commands
+ * builtInCommands, returns framework built-in commands
  * Can be overridden by a local command with the same name
  * @returns {Object[]}
  */
