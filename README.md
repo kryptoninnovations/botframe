@@ -8,7 +8,7 @@ It just works, and it's what we use across our own internal bots.
 ## Install
 ```bash
 npm install github:kryptoninnovations/botframe#main
-````
+```
 
 Requires `discord.js` ^14.26.4 in your project.
 
