@@ -58,6 +58,7 @@ module.exports.handleCommand = async (client, interaction, commands) => {
       });
     }
 
+    client.commandCooldowns.delete(cooldownKey);
     client.commandCooldowns.set(cooldownKey, now + cooldown);
   }
 
