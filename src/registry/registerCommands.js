@@ -1,6 +1,6 @@
 /**
  * registerCommands, syncs local commands with Discord's API
- * Creates new, edits changed, and removes deleted commands
+ * Creates new, edits changed, and removes commands no longer in the project
  */
 
 const areCommandsDifferent = require('../utils/areCommandsDifferent');
@@ -8,6 +8,7 @@ const areCommandsDifferent = require('../utils/areCommandsDifferent');
 module.exports = async (client, localCommands) => {
   const applicationCommands = client.application.commands;
   await applicationCommands.fetch();
+  const localCommandNames = new Set(localCommands.map(command => command.name));
 
   for (const localCommand of localCommands) {
     const { name, description, options } = localCommand;
@@ -18,12 +19,6 @@ module.exports = async (client, localCommands) => {
       );
 
       if (existingCommand) {
-        if (localCommand.deleted) {
-          await applicationCommands.delete(existingCommand.id);
-          console.log(`Deleted command "${name}"`);
-          continue;
-        }
-
         if (areCommandsDifferent(existingCommand, localCommand)) {
           await applicationCommands.edit(existingCommand.id, {
             description,
@@ -32,11 +27,6 @@ module.exports = async (client, localCommands) => {
           console.log(`Edited command "${name}"`);
         }
       } else {
-        if (localCommand.deleted) {
-          console.log(`Skipped "${name}" since it's marked deleted`);
-          continue;
-        }
-
         await applicationCommands.create({
           name,
           description,
@@ -45,7 +35,18 @@ module.exports = async (client, localCommands) => {
         console.log(`Registered command "${name}"`);
       }
     } catch (err) {
-      console.error(`Error while handling "${name}":`, error);
+      console.error(`Error while handling "${name}":`, err);
+    }
+  }
+
+  for (const existingCommand of applicationCommands.cache.values()) {
+    if (localCommandNames.has(existingCommand.name)) continue;
+
+    try {
+      await applicationCommands.delete(existingCommand.id);
+      console.log(`Deleted command "${existingCommand.name}" because it is no longer present`);
+    } catch (err) {
+      console.error(`Error while deleting "${existingCommand.name}":`, err);
     }
   }
 };

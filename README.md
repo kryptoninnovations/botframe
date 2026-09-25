@@ -1,11 +1,9 @@
 <img width="800" height="100" alt="botframe - by krypton" src="https://github.com/user-attachments/assets/ed8dd94d-ba4a-48d0-a84e-b4423d55f633" />
 <hr>
 
-A lightweight Discord.js framework for single-server bots (company discord bots, internal management, etc.). <br>
+A lightweight Discord.js framework for private bots (bots that'd be used only by one server). <br>
 No need to hand-write slash command registration or event routing, so you can focus on the core design of your bot. <br>
 It just works, and it's what we use across our own internal bots.
-
-> Note: This framework is designed towards single-server bots, however we are planning on changing this in the near future.
 
 ## Install
 ```bash
@@ -15,26 +13,51 @@ Requires `discord.js` ^14.26.4 in your project.
 
 ## Quick start
 ```js
+const path = require('node:path');
 const { FrameworkClient } = require('botframe');
 
 const client = new FrameworkClient({
-  commandsPath: __dirname + '/commands',
-  eventsPath: __dirname + '/events',
-  devUserIds: ['123456789012345678'],
+  commandsPath: path.join(__dirname, 'commands'),
+  eventsPath: path.join(__dirname, 'events'),
+  devUserIds: ['YOUR_DISCORD_USER_ID'],
+  builtInCommands: {
+    status: true,
+    botframe: true,
+  },
 });
 
 client.start(process.env.TOKEN);
 ```
-    
-## Config options
-These get passed into `new FrameworkClient({ ... })`:
 
-- `commandsPath` - folder containing your command category subfolders
-- `eventsPath` - folder containing your event name subfolders
-- `devUserIds` - user IDs allowed to run `devOnly` commands
-- `intents` - defaults to Guilds, GuildMembers, GuildMessages, MessageContent, DirectMessages
-- `partials` - defaults to Message, Channel, Reaction
-- anything else - passed straight through as normal discord.js `ClientOptions`
+## Configuration
+### Client options
+Pass these options to `new FrameworkClient({ ... })`:
+
+- `commandsPath` - directory containing command category folders, such as `commands/admin`.
+- `eventsPath` - directory containing event folders, such as `events/messageCreate`.
+- `devUserIds` - Discord user IDs allowed to run commands with `devOnly: true`.
+- `builtInCommands` - enables or disables framework commands by name. Both built-in commands are enabled by default.
+- `intents` - Discord gateway intents. Defaults to Guilds, GuildMembers, GuildMessages, MessageContent, and DirectMessages.
+- `partials` - Discord partials. Defaults to Message, Channel, and Reaction.
+- Any other option - passed to the Discord.js `Client` constructor.
+
+Example:
+
+```js
+const path = require('node:path');
+
+const client = new FrameworkClient({
+  commandsPath: path.join(__dirname, 'commands'),
+  eventsPath: path.join(__dirname, 'events'),
+  devUserIds: ['123456789012345678'],
+  builtInCommands: {
+    status: true,
+    botframe: false,
+  },
+});
+```
+
+Call `client.start(process.env.TOKEN)` after creating the client.
 
 ## Commands
 Put one file per command in `commandsPath/<category>/<commandFile>.js`.
@@ -45,9 +68,10 @@ module.exports = {
   name: 'ping',
   description: 'Replies with pong',
   options: [], // optional, standard discord.js slash command options
-  devOnly: false, // optional, restrict to devUserIds
   permissionsRequired: [], // optional, array of role IDs allowed to use this command
-  deleted: false, // optional, set true to remove this command from Discord
+  cooldown: 5000, // optional, milliseconds between uses per user
+  devOnly: false, // optional, restrict to devUserIds defined
+  restrictDMs: true, // optional, set false to allow use in direct messages
 
   callback: async (client, interaction) => {
     await interaction.reply('pong');
@@ -55,18 +79,16 @@ module.exports = {
 };
 ```
 
-Everything gets registered automatically when `client.start()` runs. New commands are created, existing ones are only edited if their description or options actually changed, and anything marked `deleted: true` gets removed from Discord (or just skipped if it was never registered).
+Everything gets registered automatically when `client.start()` runs. New commands are created, existing ones are only edited if their description or options actually changed, and commands removed from the project are also removed from Discord.
+botframe includes `/status`, which shows framework and bot details, and `/botframe`, which provides information about the framework.
 
 ### Command runtime
 Before a command's `callback` runs, botframe checks:
-1. It's not being used in DMs (guild only, not removable),
+1. It is not being used in DMs by default; set `restrictDMs: false` to allow direct messages,
 2. If `devOnly` is set, the user is in `devUserIds`,
 3. If `permissionsRequired` is set, the user has at least one of those role IDs.
 
 If `callback` throws, the error gets logged and the user just sees a generic "something went wrong" reply.
-
-### Built-in commands
-botframe comes with one command by default, `/status`, which shows the framework version, your bot's version (pulled from your project's `package.json`), uptime, and client/WebSocket ping. If you define your own local command called `status`, yours will override the built-in one.
 
 ## Events
 Put handler files in `eventsPath/<eventName>/<handlerFile>.js`, one folder per Discord.js event name. You can have as many handler files in a folder as you want.
@@ -81,5 +103,5 @@ module.exports = async (client, message) => {
 Handlers within a folder run in alphabetical file order, one after another.
 
 ## Attributions
-Created by krypton Innovations
+Created by krypton Innovations <br>
 Originally based on [notunderctrl](https://github.com/notunderctrl)'s Discord.js v14 tutorial

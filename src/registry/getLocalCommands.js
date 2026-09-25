@@ -10,6 +10,8 @@ const path = require('path');
 const getAllFiles = require('../utils/getAllFiles');
 
 module.exports = (commandsBasePath, exceptions = []) => {
+  if (!commandsBasePath) return [];
+
   let localCommands = [];
 
   const commandCategories = getAllFiles(commandsBasePath, true);

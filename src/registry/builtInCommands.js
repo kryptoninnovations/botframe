@@ -1,6 +1,5 @@
 /**
- * getBuiltInCommands, returns framework built-in commands
- * Can be overridden by a local command with the same name
+ * builtInCommands, returns framework built-in commands
  * @returns {Object[]}
  */
 
@@ -20,13 +19,13 @@ module.exports = () => [
       const reply = await interaction.fetchReply();
 
       let botVersion = 'unknown';
-      try { 
-        botVersion = require(path.join(process.cwd(), 'package.json')).version; 
+      try {
+        botVersion = require(path.join(process.cwd(), 'package.json')).version;
       } catch (_) { }
 
       const embed = new EmbedBuilder()
         .setTitle(`${client.user.username} Status`)
-        .setColor('#24864a')
+        .setColor('#60a5fa')
         .addFields(
           { name: 'botframe Version', value: `v${frameworkVersion}`, inline: true },
           { name: 'Bot Version', value: `v${botVersion}`, inline: true },
@@ -35,6 +34,22 @@ module.exports = () => [
           { name: 'WebSocket Ping', value: `${client.ws.ping}ms`, inline: true },
           { name: 'Memory Usage', value: `${Math.round(process.memoryUsage().rss / 1024 / 1024)} MB`, inline: true }
         );
+
+      await interaction.editReply({ embeds: [embed] });
+    },
+  },
+  {
+    name: 'botframe',
+    description: 'Get information about the botframe framework.',
+    restrictDMs: false,
+
+    callback: async (client, interaction) => {
+      await interaction.deferReply();
+
+      const embed = new EmbedBuilder()
+        .setTitle('botframe Information')
+        .setColor('#09193a')
+        .setDescription('A lightweight Discord.js framework for private bots made by krypton Innovations.\nGet on GitHub: https://github.com/kryptoninnovations/botframe');
 
       await interaction.editReply({ embeds: [embed] });
     },

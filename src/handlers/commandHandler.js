@@ -39,6 +39,23 @@ module.exports.handleCommand = async (client, interaction, commands) => {
     }
   }
 
+  const cooldown = Number(commandObject.cooldown);
+  if (Number.isFinite(cooldown) && cooldown > 0) {
+    const cooldownKey = `${commandObject.name}:${interaction.user.id}`;
+    const availableAt = client.commandCooldowns.get(cooldownKey) || 0;
+    const now = Date.now();
+
+    if (availableAt > now) {
+      const seconds = Math.ceil((availableAt - now) / 1000);
+      return interaction.reply({
+        content: `Please wait ${seconds}s before using this command again.`,
+        flags: MessageFlags.Ephemeral,
+      });
+    }
+
+    client.commandCooldowns.set(cooldownKey, now + cooldown);
+  }
+
   try {
     await commandObject.callback(client, interaction);
   } catch (error) {

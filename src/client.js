@@ -7,7 +7,7 @@
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const registerCommands = require('./registry/registerCommands');
 const getLocalCommands = require('./registry/getLocalCommands');
-const getBuiltInCommands = require('./registry/getBuiltInCommands');
+const builtInCommands = require('./registry/builtInCommands');
 const { loadEvents } = require('./handlers/eventHandler');
 const { handleCommand } = require('./handlers/commandHandler');
 
@@ -33,6 +33,7 @@ class FrameworkClient extends Client {
       commandsPath,
       eventsPath,
       devUserIds = [],
+      builtInCommands = {},
       ...clientOptions
     } = options;
 
@@ -43,9 +44,11 @@ class FrameworkClient extends Client {
       commandsPath,
       eventsPath,
       devUserIds,
+      builtInCommands,
     };
 
     this.commands = new Map();
+    this.commandCooldowns = new Map();
   }
 
   async start(token) {
@@ -64,18 +67,24 @@ class FrameworkClient extends Client {
     `;
     console.log(banner);
 
-    const builtInCommands = getBuiltInCommands();
+    const allBuiltInCommands = builtInCommands();
+    const activeBuiltInCommands = allBuiltInCommands.filter(
+      command => this.config.builtInCommands[command.name] !== false
+    );
 
     const localCommands = getLocalCommands(this.config.commandsPath);
 
-    const allCommands = [...builtInCommands];
+    const allCommands = [...activeBuiltInCommands];
     for (const cmd of localCommands) {
-      const existingIndex = allCommands.findIndex(c => c.name === cmd.name);
-      if (existingIndex !== -1) {
-        allCommands[existingIndex] = cmd;
-      } else {
-        allCommands.push(cmd);
+      if (allCommands.some(command => command.name === cmd.name)) {
+        if (activeBuiltInCommands.some(command => command.name === cmd.name)) {
+          throw new Error(`Command "${cmd.name}" conflicts with an enabled botframe command. Disable it in FrameworkClient options before defining your own.`);
+        }
+
+        throw new Error(`Duplicate local command "${cmd.name}" found.`);
       }
+
+      allCommands.push(cmd);
     }
 
     this.commands.clear();
