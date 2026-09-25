@@ -8,7 +8,8 @@ It just works, and it's what we use across our own internal bots.
 ## Install
 ```bash
 npm install github:kryptoninnovations/botframe#main
-```
+````
+
 Requires `discord.js` ^14.26.4 in your project.
 
 ## Quick start
@@ -33,18 +34,19 @@ client.start(process.env.TOKEN);
 ### Client options
 Pass these options to `new FrameworkClient({ ... })`:
 
-- `commandsPath` - directory containing command category folders, such as `commands/admin`.
-- `eventsPath` - directory containing event folders, such as `events/messageCreate`.
-- `devUserIds` - Discord user IDs allowed to run commands with `devOnly: true`.
-- `builtInCommands` - enables or disables framework commands by name. Both built-in commands are enabled by default.
-- `intents` - Discord gateway intents. Defaults to Guilds, GuildMembers, GuildMessages, MessageContent, and DirectMessages.
-- `partials` - Discord partials. Defaults to Message, Channel, and Reaction.
-- Any other option - passed to the Discord.js `Client` constructor.
+* `commandsPath` - directory containing command category folders, such as `commands/admin`.
+* `eventsPath` - directory containing event folders, such as `events/messageCreate`.
+* `devUserIds` - Discord user IDs allowed to run commands with `devOnly: true`.
+* `builtInCommands` - enables or disables framework commands by name. Both built-in commands are enabled by default. Local commands cannot use the same names as enabled built-in commands.
+* `intents` - Discord gateway intents. Defaults to Guilds, GuildMembers, GuildMessages, MessageContent, and DirectMessages.
+* `partials` - Discord partials. Defaults to Message, Channel, and Reaction.
+* Any other option - passed to the Discord.js `Client` constructor.
 
 Example:
 
 ```js
 const path = require('node:path');
+const { FrameworkClient } = require('botframe');
 
 const client = new FrameworkClient({
   commandsPath: path.join(__dirname, 'commands'),
@@ -72,7 +74,6 @@ module.exports = {
   cooldown: 5000, // optional, milliseconds between uses per user
   devOnly: false, // optional, restrict to devUserIds defined
   restrictDMs: true, // optional, set false to allow use in direct messages
-
   callback: async (client, interaction) => {
     await interaction.reply('pong');
   },
@@ -80,10 +81,14 @@ module.exports = {
 ```
 
 Everything gets registered automatically when `client.start()` runs. New commands are created, existing ones are only edited if their description or options actually changed, and commands removed from the project are also removed from Discord.
+
 botframe includes `/status`, which shows framework and bot details, and `/botframe`, which provides information about the framework.
+
+Built-in commands can be disabled through `builtInCommands` if you want to define your own command with the same name.
 
 ### Command runtime
 Before a command's `callback` runs, botframe checks:
+
 1. It is not being used in DMs by default; set `restrictDMs: false` to allow direct messages,
 2. If `devOnly` is set, the user is in `devUserIds`,
 3. If `permissionsRequired` is set, the user has at least one of those role IDs.

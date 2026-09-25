@@ -45,6 +45,7 @@ module.exports.handleCommand = async (client, interaction, commands) => {
   }
 
   const cooldown = Number(commandObject.cooldown);
+
   if (Number.isFinite(cooldown) && cooldown > 0) {
     const cooldownKey = `${commandObject.name}:${interaction.user.id}`;
     const availableAt = client.commandCooldowns.get(cooldownKey) || 0;
@@ -52,21 +53,35 @@ module.exports.handleCommand = async (client, interaction, commands) => {
 
     if (availableAt > now) {
       const seconds = Math.ceil((availableAt - now) / 1000);
+
       return interaction.reply({
         content: `Please wait ${seconds}s before using this command again.`,
         flags: MessageFlags.Ephemeral,
       });
     }
 
-    client.commandCooldowns.set(cooldownKey, now + cooldown);
+    const expiresAt = now + cooldown;
+
+    client.commandCooldowns.delete(cooldownKey);
+    client.commandCooldowns.set(cooldownKey, expiresAt);
+
+    setTimeout(() => {
+      if (client.commandCooldowns.get(cooldownKey) === expiresAt) {
+        client.commandCooldowns.delete(cooldownKey);
+      }
+    }, cooldown);
   }
 
   try {
     await commandObject.callback(client, interaction);
   } catch (error) {
     console.error(`Command "${commandObject.name}" error:`, error);
+
     if (!interaction.replied && !interaction.deferred) {
-      await interaction.reply({ content: '❌ An error occurred, please contact the bot developer if this continues.', flags: MessageFlags.Ephemeral }).catch(() => {});
+      await interaction.reply({
+        content: '❌ An error occurred, please contact the bot developer if this continues.',
+        flags: MessageFlags.Ephemeral,
+      }).catch(() => {});
     }
   }
 };
