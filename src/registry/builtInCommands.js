@@ -26,7 +26,7 @@ module.exports = () => [
 
       const embed = new EmbedBuilder()
         .setTitle(`${client.user.username} Status`)
-        .setColor('#24864a')
+        .setColor('#6761e9')
         .addFields(
           { name: 'botframe Version', value: `v${frameworkVersion}`, inline: true },
           { name: 'Bot Version', value: `v${botVersion}`, inline: true },
@@ -35,6 +35,28 @@ module.exports = () => [
           { name: 'WebSocket Ping', value: `${client.ws.ping}ms`, inline: true },
           { name: 'Memory Usage', value: `${Math.round(process.memoryUsage().rss / 1024 / 1024)} MB`, inline: true }
         );
+
+      await interaction.editReply({ embeds: [embed] });
+    },
+  },
+  {
+    name: 'botframe',
+    description: 'Show information about this bot\'s framework.',
+    restrictDMs: false,
+
+    callback: async (client, interaction) => {
+      await interaction.deferReply();
+      const reply = await interaction.fetchReply();
+
+      let botVersion = 'unknown';
+      try { 
+        botVersion = require(path.join(process.cwd(), 'package.json')).version; 
+      } catch (_) { }
+
+      const embed = new EmbedBuilder()
+        .setTitle(`botframe`)
+        .setColor('#09193a')
+        .setDescription('A lightweight Discord.js framework for private bots (bots that are only used in one server).\nGet it at https://github.com/kryptoninnovations/botframe.');
 
       await interaction.editReply({ embeds: [embed] });
     },

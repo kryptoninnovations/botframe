@@ -1,11 +1,9 @@
 <img width="800" height="100" alt="botframe - by krypton" src="https://github.com/user-attachments/assets/ed8dd94d-ba4a-48d0-a84e-b4423d55f633" />
 <hr>
 
-A lightweight Discord.js framework for single-server bots (company discord bots, internal management, etc.). <br>
+A lightweight Discord.js framework for private bots (bots that are only used in one server). <br>
 No need to hand-write slash command registration or event routing, so you can focus on the core design of your bot. <br>
-It just works, and it's what we use across our own internal bots.
-
-> Note: This framework is designed towards single-server bots, however we are planning on changing this in the near future.
+It just works, and it's what we use in our own bots!
 
 ## Install
 ```bash
@@ -21,6 +19,10 @@ const client = new FrameworkClient({
   commandsPath: __dirname + '/commands',
   eventsPath: __dirname + '/events',
   devUserIds: ['123456789012345678'],
+  builtInCommands: {
+    status: true,
+    botframe: false,
+  },
 });
 
 client.start(process.env.TOKEN);
@@ -32,6 +34,7 @@ These get passed into `new FrameworkClient({ ... })`:
 - `commandsPath` - folder containing your command category subfolders
 - `eventsPath` - folder containing your event name subfolders
 - `devUserIds` - user IDs allowed to run `devOnly` commands
+- `builtInCommands` - enables or disables built-in commands (`status` and `botframe`, both enabled by default)
 - `intents` - defaults to Guilds, GuildMembers, GuildMessages, MessageContent, DirectMessages
 - `partials` - defaults to Message, Channel, Reaction
 - anything else - passed straight through as normal discord.js `ClientOptions`
@@ -66,7 +69,7 @@ Before a command's `callback` runs, botframe checks:
 If `callback` throws, the error gets logged and the user just sees a generic "something went wrong" reply.
 
 ### Built-in commands
-botframe comes with one command by default, `/status`, which shows the framework version, your bot's version (pulled from your project's `package.json`), uptime, and client/WebSocket ping. If you define your own local command called `status`, yours will override the built-in one.
+botframe comes with two commands by default; `/status`, which shows the framework version, your bot's version (pulled from your project's `package.json`), uptime, and client/WebSocket ping, and `/botframe`, which shows information regarding botframe. These commands can be disabled in your config options.
 
 ## Events
 Put handler files in `eventsPath/<eventName>/<handlerFile>.js`, one folder per Discord.js event name. You can have as many handler files in a folder as you want.
@@ -81,5 +84,5 @@ module.exports = async (client, message) => {
 Handlers within a folder run in alphabetical file order, one after another.
 
 ## Attributions
-Created by krypton Innovations
+Created by krypton Innovations <br>
 Originally based on [notunderctrl](https://github.com/notunderctrl)'s Discord.js v14 tutorial

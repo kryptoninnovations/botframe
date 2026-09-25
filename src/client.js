@@ -33,6 +33,7 @@ class FrameworkClient extends Client {
       commandsPath,
       eventsPath,
       devUserIds = [],
+      builtInCommands = {},
       ...clientOptions
     } = options;
 
@@ -43,6 +44,11 @@ class FrameworkClient extends Client {
       commandsPath,
       eventsPath,
       devUserIds,
+      builtInCommands: {
+        status: true,
+        botframe: true,
+        ...builtInCommands,
+      },
     };
 
     this.commands = new Map();
@@ -64,11 +70,12 @@ class FrameworkClient extends Client {
     `;
     console.log(banner);
 
-    const builtInCommands = builtInCommands();
+    const enabledBuiltInCommands = builtInCommands()
+      .filter(command => this.config.builtInCommands[command.name] !== false);
 
     const localCommands = getLocalCommands(this.config.commandsPath);
 
-    const allCommands = [...builtInCommands];
+    const allCommands = [...enabledBuiltInCommands];
     for (const cmd of localCommands) {
       const existingIndex = allCommands.findIndex(c => c.name === cmd.name);
       if (existingIndex !== -1) {
