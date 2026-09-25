@@ -1,11 +1,8 @@
-/**
- * Command Handler, checks before running a command's callback
- */
-
 const { MessageFlags } = require('discord.js');
 
 module.exports.handleCommand = async (client, interaction, commands) => {
   const commandObject = commands.get(interaction.commandName);
+
   if (!commandObject) return;
 
   if (commandObject.devOnly && !client.config.devUserIds.includes(interaction.user.id)) {
@@ -62,7 +59,6 @@ module.exports.handleCommand = async (client, interaction, commands) => {
 
     const expiresAt = now + cooldown;
 
-    client.commandCooldowns.delete(cooldownKey);
     client.commandCooldowns.set(cooldownKey, expiresAt);
 
     setTimeout(() => {
