@@ -14,9 +14,9 @@ module.exports = async (client, localCommands) => {
     const { name, description, options } = localCommand;
 
     try {
-      const existingCommand = applicationCommands.cache.find(
-        (cmd) => cmd.name === name
-      );
+      const existingCommand = typeof applicationCommands.cache.find === 'function'
+        ? applicationCommands.cache.find(cmd => cmd.name === name)
+        : Array.from(applicationCommands.cache.values()).find(cmd => cmd.name === name);
 
       if (existingCommand) {
         if (areCommandsDifferent(existingCommand, localCommand)) {

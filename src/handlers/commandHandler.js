@@ -24,18 +24,23 @@ module.exports.handleCommand = async (client, interaction, commands) => {
     });
   }
 
-  if (!isDM) {
-    if (commandObject.permissionsRequired?.length) {
-      const hasRole = interaction.member.roles.cache.some(role =>
-        commandObject.permissionsRequired.includes(role.id)
-      );
+  if (commandObject.permissionsRequired?.length) {
+    if (isDM) {
+      return interaction.reply({
+        content: '❌ This command requires a role and cannot be used in Direct Messages.',
+        flags: MessageFlags.Ephemeral,
+      });
+    }
 
-      if (!hasRole) {
-        return interaction.reply({
-          content: `❌ You do not have the valid permissions required for this command. This command is restricted to: ${commandObject.permissionsRequired.map(id => `<@&${id}>`).join(', ')} only.`,
-          flags: MessageFlags.Ephemeral,
-        });
-      }
+    const hasRole = interaction.member.roles.cache.some(role =>
+      commandObject.permissionsRequired.includes(role.id)
+    );
+
+    if (!hasRole) {
+      return interaction.reply({
+        content: `❌ You do not have the valid permissions required for this command. This command is restricted to: ${commandObject.permissionsRequired.map(id => `<@&${id}>`).join(', ')} only.`,
+        flags: MessageFlags.Ephemeral,
+      });
     }
   }
 
